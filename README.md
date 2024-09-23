@@ -4,3 +4,4 @@ It comprises data from wearables sensing modalities and cameras distributed in t
 Two experiment settings are available.
 This includes the assembly/disassembly of a bike in semi-realistic conditions without fixed protocol. 
 Where participants achieve a goal with divergent thinking. 
+![OpenMARCIE](https://github.com/user-attachments/assets/e1ac1a03-abf9-45b7-9bef-e4e0e1bee1e8)
