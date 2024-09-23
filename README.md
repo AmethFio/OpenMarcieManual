@@ -1,7 +1,25 @@
+
 # OpenMARCIE: Open Dataset for Multimodal Action Recognition in Industrial Environments
-## It is a dataset designed for human action monitoring in manufacturing lines.
-It comprises data from wearables sensing modalities and cameras distributed in the surroundings. 
-Two experiment settings are available.
-This includes the assembly/disassembly of a bike in semi-realistic conditions without fixed protocol. 
-Where participants achieve a goal with divergent thinking. 
-![OpenMARCIE](https://github.com/user-attachments/assets/e1ac1a03-abf9-45b7-9bef-e4e0e1bee1e8)
+
+
+
+<div style="display: flex; align-items: left;"> 
+  <div>
+    <img src="https://github.com/user-attachments/assets/e1ac1a03-abf9-45b7-9bef-e4e0e1bee1e8" width="300" align="right" />
+  </div>
+  <div>
+    <p align="left">
+    It is a dataset designed for human action monitoring in manufacturing lines.
+    It comprises data from wearables sensing modalities and cameras distributed in the surroundings. 
+    Two experiment settings are available for a total of 37 participants.
+    This includes the assembly/disassembly of a bike in semi-realistic conditions without fixed protocol. 
+    Where twelve participants achieve a goal with divergent thinking. 
+    A second experiment was conducted with 25 volunteers on a 3D printer building task. 
+    The 3D printer manufacturer's instructions are available and volunteers are free to follow them.
+    The dataset contains TATA hours of multimodal and multipositional data with more than TATA data types. 
+    </p>
+  </div>
+</div>
+
+    
+  
