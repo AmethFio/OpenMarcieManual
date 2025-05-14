@@ -9,27 +9,26 @@
   </div>
   <div>
     <p align="left">
-    Smart factories use advanced technologies to optimize production and increase efficiency.
-    To this end, the recognition of worker activity allows for accurate quantification of performance metrics, improving efficiency holistically while contributing to worker safety.
-    OpenMarcie is the biggest multimodal dataset designed for human action monitoring in manufacturing lines.
-    It comprises data from wearables sensing modalities and cameras distributed in the surroundings. 
-    Two experiment settings are available for a total of 36 participants.
-    This includes the assembly/disassembly of a bicycle in semi-realistic conditions without fixed protocol. 
-    Where twelve participants achieve a goal with divergent thinking. 
-    A second experiment was conducted with twenty five volunteers (24 valid data) on a 3D printer building task. 
-    The 3D printer manufacturer's instructions are available to capture the volunteer's process of acquiring procedural knowledge.
-    The dataset includes over 37 hours of egocentric and exocentric, multimodal, and multipositional data, featuring eight distinct data types and more than 200 independent information channels.
-    We benchmark three foundational human activity recognitions tasks: human activity classification, open vocabulary captioning and cross modal alignment.
+Smart factories use advanced technologies to optimize production and increase efficiency. 
+To this end, the recognition of worker activity allows for accurate quantification of performance metrics, improving efficiency holistically while contributing to worker safety.
+OpenMarcie is, to the best of our knowledge, the biggest multimodal dataset designed for human action monitoring in manufacturing environments. It includes data from wearables sensing modalities and cameras distributed in the surroundings. 
+The dataset is structured around two experimental settings, involving a total of 36 participants.
+In the first setting, twelve participants perform a bicycle assembly and disassembly task under semi-realistic conditions without a fixed protocol, promoting divergent and goal-oriented problem-solving.
+The second experiment involves twenty-five volunteers (24 valid data) engaged in a 3D printer assembly task, with the 3D printer manufacturer's instructions provided to guide the volunteers in acquiring procedural knowledge.
+This setting also includes sequential collaborative assembly, where participants assess and correct each other's progress, reflecting real-world manufacturing dynamics.
+OpenMarcie includes over 37 hours of egocentric and exocentric, multimodal, and multipositional data, featuring eight distinct data types and more than 200 independent information channels. 
+The dataset is benchmarked across three human activity recognition tasks: activity classification, open vocabulary captioning, and cross-modal alignment. 
+The dataset and associated code of OpenMarcie are publicly available at https://kaggle.com/datasets/47634878f107d35a57172f270241993d822fd67114c0f4d173b40b2dd9346a58. 
     </p>
   </div>
 </div>
 
 ## References
-[OpenMARCIE paper](https://tata)
+##[OpenMARCIE paper](https://tata)
 
-[Recorded Conference talk](https://tata)
+##[Recorded Conference talk](https://tata)
 
-[Suplementary video](https://TATA)
+##[Suplementary video](https://TATA)
 
 ## Legal
 
