@@ -23,12 +23,7 @@ The dataset and associated code of OpenMarcie are publicly available at https://
   </div>
 </div>
 
-## References
-##[OpenMARCIE paper](https://tata)
 
-##[Recorded Conference talk](https://tata)
-
-##[Suplementary video](https://TATA)
 
 ## Legal
 
