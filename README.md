@@ -1,5 +1,5 @@
 
-# OpenMARCIE: Open Dataset for Multimodal Action Recognition in Industrial Environments
+# OpenMARCIE: Dataset for Multimodal Action Recognition in Industrial Environments
 
 
 
