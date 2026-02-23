@@ -18,7 +18,7 @@ The second experiment involves twenty-five volunteers (24 valid data) engaged in
 This setting also includes sequential collaborative assembly, where participants assess and correct each other's progress, reflecting real-world manufacturing dynamics.
 OpenMarcie includes over 37 hours of egocentric and exocentric, multimodal, and multipositional data, featuring eight distinct data types and more than 200 independent information channels. 
 The dataset is benchmarked across three human activity recognition tasks: activity classification, open vocabulary captioning, and cross-modal alignment. 
-The dataset and associated code of OpenMarcie are publicly available at https://kaggle.com/datasets/47634878f107d35a57172f270241993d822fd67114c0f4d173b40b2dd9346a58. 
+The dataset and associated code of OpenMarcie are publicly available at https://kaggle.com/datasets/4942046dbb2608f5a0c3e76c9bd53c6b9b2784d738da7db37f7739b89c2c7f95. 
     </p>
   </div>
 </div>
