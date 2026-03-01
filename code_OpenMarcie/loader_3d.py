@@ -126,7 +126,6 @@ class EgoChestMultiSessionDataset(Dataset):
                     if end_idx <= start_idx:
                         video_embedding = torch.zeros((1, self.vit_model.config.hidden_size))
                     else:
-                        # Sample frames at 8 FPS regardless of segment duration
                         target_fps = 8
                         duration = end - start
                         num_frames = max(1, int(duration * target_fps))

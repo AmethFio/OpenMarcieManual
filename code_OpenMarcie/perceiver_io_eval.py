@@ -1,8 +1,3 @@
-"""
-Perceiver IO Multimodal Fusion Classification - Evaluation Script
-
-Evaluates the trained Perceiver IO model on test data using various metrics.
-"""
 
 import torch
 import torch.nn as nn
@@ -19,12 +14,10 @@ from sklearn.metrics import (
 from torch.utils.data import DataLoader
 from fixedwindowloader import FixedWindowDataset
 
-# Import model architecture from training script
 from perceiver_io_train import PerceiverIOFusionClassifier
 
 
 def load_model(checkpoint_path, device):
-    """Load trained Perceiver IO model from checkpoint."""
     checkpoint = torch.load(checkpoint_path, map_location=device)
     config = checkpoint['config']
     
@@ -37,7 +30,6 @@ def load_model(checkpoint_path, device):
         num_latents=config['num_latents'],
         num_perceiver_blocks=config['num_perceiver_blocks'],
         num_self_attn_per_block=config['num_self_attn_per_block'],
-        # Optional modality configs (use .get() for backward compatibility)
         magnetometer_input_size=config.get('magnetometer_input_size'),
         barometer_input_size=config.get('barometer_input_size'),
         temperature_input_size=config.get('temperature_input_size'),
@@ -51,7 +43,6 @@ def load_model(checkpoint_path, device):
     
     print(f"Model loaded from epoch {checkpoint['epoch']} with val_loss: {checkpoint['val_loss']:.4f}")
     
-    # Print enabled modalities
     print("Enabled modalities:")
     print(f"  - IMU, Audio, Video: Yes (core)")
     print(f"  - Magnetometer: {'Yes' if config.get('magnetometer_input_size') else 'No'}")
@@ -64,7 +55,6 @@ def load_model(checkpoint_path, device):
 
 
 def _extract_optional_modalities(batch, device):
-    """Helper function to extract and move optional modalities to device."""
     modalities = {}
     for key in ['magnetometer', 'barometer', 'temperature', 'spectrometer', 'thermal']:
         data = batch.get(key)
@@ -76,18 +66,6 @@ def _extract_optional_modalities(batch, device):
 
 
 def evaluate_model(model, test_loader, device, threshold=0.5):
-    """
-    Evaluate model performance on test set.
-    
-    Args:
-        model: Trained model
-        test_loader: DataLoader for test set
-        device: torch device
-        threshold: Classification threshold for sigmoid outputs
-    
-    Returns:
-        Dictionary with evaluation metrics
-    """
     model.eval()
     
     all_preds = []
@@ -101,7 +79,6 @@ def evaluate_model(model, test_loader, device, threshold=0.5):
             video = batch["video"].to(device)
             labels = batch["hard_label"].float().to(device)
             
-            # Extract optional modalities
             opt_mods = _extract_optional_modalities(batch, device)
             
             logits = model(
@@ -123,7 +100,6 @@ def evaluate_model(model, test_loader, device, threshold=0.5):
     all_labels = np.array(all_labels)
     all_probs = np.array(all_probs)
     
-    # Calculate metrics
     results = {
         'f1_macro': f1_score(all_labels, all_preds, average='macro'),
         'f1_micro': f1_score(all_labels, all_preds, average='micro'),
@@ -134,7 +110,6 @@ def evaluate_model(model, test_loader, device, threshold=0.5):
         'accuracy_samples': accuracy_score(all_labels, all_preds),
     }
     
-    # Per-class F1 scores
     f1_per_class = f1_score(all_labels, all_preds, average=None)
     results['f1_per_class'] = f1_per_class
     
@@ -142,7 +117,6 @@ def evaluate_model(model, test_loader, device, threshold=0.5):
 
 
 def print_evaluation_results(results):
-    """Print formatted evaluation results."""
     print("\n" + "="*60)
     print("PERCEIVER IO EVALUATION RESULTS")
     print("="*60)
@@ -164,7 +138,6 @@ def print_evaluation_results(results):
 
 
 def find_optimal_threshold(model, val_loader, device):
-    """Find optimal classification threshold using validation set."""
     model.eval()
     
     all_probs = []
@@ -177,7 +150,6 @@ def find_optimal_threshold(model, val_loader, device):
             video = batch["video"].to(device)
             labels = batch["hard_label"].float().to(device)
             
-            # Extract optional modalities
             opt_mods = _extract_optional_modalities(batch, device)
             
             logits = model(
@@ -196,7 +168,6 @@ def find_optimal_threshold(model, val_loader, device):
     all_probs = np.array(all_probs)
     all_labels = np.array(all_labels)
     
-    # Search for optimal threshold
     best_f1 = 0
     best_threshold = 0.5
     
@@ -212,14 +183,11 @@ def find_optimal_threshold(model, val_loader, device):
 
 
 def main():
-    """Main evaluation function."""
-    # Configuration
     base_dir = r"E:\precomputed_data"
     checkpoint_path = "perceiver_io_best_model.pth"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
-    # Load test dataset
     print("Loading test dataset...")
     test_dataset = FixedWindowDataset(
         data_dir=os.path.join(base_dir, "test"),
@@ -230,7 +198,6 @@ def main():
     )
     test_loader = DataLoader(test_dataset, batch_size=4, shuffle=False)
     
-    # Optionally load validation set for threshold optimization
     val_dataset = FixedWindowDataset(
         data_dir=os.path.join(base_dir, "val"),
         imu_window_size=100,
@@ -240,26 +207,21 @@ def main():
     )
     val_loader = DataLoader(val_dataset, batch_size=4, shuffle=False)
     
-    # Load model
     print(f"Loading model from {checkpoint_path}...")
     model = load_model(checkpoint_path, device)
     
-    # Find optimal threshold on validation set
     print("\nFinding optimal threshold on validation set...")
     optimal_threshold = find_optimal_threshold(model, val_loader, device)
     
-    # Evaluate on test set with default threshold
     print("\nEvaluating on test set (threshold=0.5)...")
     results_default, _, _, _ = evaluate_model(model, test_loader, device, threshold=0.5)
     print(f"F1 Score (Macro) with threshold 0.5: {results_default['f1_macro']:.4f}")
     
-    # Evaluate on test set with optimal threshold
     print(f"\nEvaluating on test set (threshold={optimal_threshold:.2f})...")
     results_optimal, preds, labels, probs = evaluate_model(
         model, test_loader, device, threshold=optimal_threshold
     )
     
-    # Print detailed results
     print_evaluation_results(results_optimal)
     
     return results_optimal

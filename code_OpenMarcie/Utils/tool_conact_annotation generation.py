@@ -9,33 +9,17 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 
-# =============================================================================
-# Data Structures
-# =============================================================================
-
 @dataclass
 class Annotation:
-    """Single time-stamped annotation row."""
     start_time: float
     end_time: float
     text: str
-    hard_label: str = ""           # "tool-contact" or "tool-noncontact"
-    confidence: float = 0.0        # 0-1 confidence of the label
-    source_format: str = ""        # "whisper" or "softlabel_rich"
+    hard_label: str = ""
+    confidence: float = 0.0
+    source_format: str = ""
 
-
-# =============================================================================
-# CSV Format Detection and Parsing
-# =============================================================================
 
 def detect_format(filepath: str) -> str:
-    """
-    Auto-detect which CSV format the file uses.
-    
-    Returns:
-        "whisper"         WhisperLabel format  (Id, Start_s, End_s, Text, ...)
-        "softlabel_rich"  SoftLabels_Rich      (Start_Time, End_Time, Sentence)
-    """
     with open(filepath, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         header = next(reader)
@@ -54,7 +38,6 @@ def detect_format(filepath: str) -> str:
 
 
 def parse_whisper_csv(filepath: str) -> List[Annotation]:
-    """Parse WhisperLabel CSV (Whisper ASR transcription output)."""
     annotations = []
     with open(filepath, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -78,7 +61,6 @@ def parse_whisper_csv(filepath: str) -> List[Annotation]:
 
 
 def parse_softlabel_rich_csv(filepath: str) -> List[Annotation]:
-    """Parse SoftLabels_Rich CSV (action description labels)."""
     annotations = []
     with open(filepath, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -89,7 +71,6 @@ def parse_softlabel_rich_csv(filepath: str) -> List[Annotation]:
                 end = float(row["End_Time"])
             except (ValueError, KeyError):
                 continue
-            # Keep rows even with empty text (they are unlabelled gaps)
             annotations.append(
                 Annotation(
                     start_time=start,
@@ -102,7 +83,6 @@ def parse_softlabel_rich_csv(filepath: str) -> List[Annotation]:
 
 
 def load_annotations(filepath: str) -> List[Annotation]:
-    """Load annotations from any supported CSV format."""
     fmt = detect_format(filepath)
     print(f"Detected format: {fmt}")
     if fmt == "whisper":
@@ -111,11 +91,6 @@ def load_annotations(filepath: str) -> List[Annotation]:
         return parse_softlabel_rich_csv(filepath)
 
 
-# =============================================================================
-# Rule-Based Classifier
-# =============================================================================
-
-# Explicit tool keywords (when these appear, it's tool-contact)
 TOOL_KEYWORDS = [
     "screwdriver",
     "wrench",
@@ -144,7 +119,7 @@ TOOL_KEYWORDS = [
     "crowbar",
     "pry bar",
     "chisel",
-    "file",           # only when clearly a tool
+    "file",
     "rasp",
     "saw",
     "knife",
@@ -155,10 +130,9 @@ TOOL_KEYWORDS = [
     "crimper",
 ]
 
-# Actions that strongly imply tool use
 TOOL_ACTION_PATTERNS = [
-    r"using a (?!bare\s*hand)",       # "using a <something>" that is NOT bare hand
-    r"screwing\b",                     # screwing implies tool even if tool unstated
+    r"using a (?!bare\s*hand)",
+    r"screwing\b",
     r"unscrewing\b",
     r"tightening\b",
     r"loosening\b",
@@ -171,9 +145,8 @@ TOOL_ACTION_PATTERNS = [
     r"clamping\b",
 ]
 
-# Bare-hand / no-tool patterns
 NONCONTACT_PATTERNS = [
-    r"^$",                            # empty text
+    r"^$",
     r"^he is walking\.?$",
     r"^he is standing up",
     r"^he is kneeling down\.?$",
@@ -188,7 +161,6 @@ NONCONTACT_PATTERNS = [
     r"^sorry",
 ]
 
-# Whisper conversational filler – not an activity description
 CONVERSATIONAL_KEYWORDS = [
     "camera", "please", "again", "moment", "noise", "heard",
     "stop", "wait", "okay", "yes", "no", "oh", "right",
@@ -198,44 +170,26 @@ CONVERSATIONAL_KEYWORDS = [
 
 
 def classify_rule_based(annotation: Annotation) -> Tuple[str, float]:
-    """
-    Classify annotation using keyword/pattern rules.
-    
-    Returns:
-        (label, confidence)
-    """
     text = annotation.text.strip().lower()
     
-    # Empty text → unlabelled / noncontact
     if not text:
         return "tool-noncontact", 0.5
     
-    # ------------------------------------------------------------------
-    # Whisper ASR format: these are speech transcriptions, not activity
-    # descriptions. We look for mentions of tools in conversation.
-    # ------------------------------------------------------------------
     if annotation.source_format == "whisper":
         return _classify_whisper_text(text)
     
-    # ------------------------------------------------------------------
-    # SoftLabel_Rich format: structured activity descriptions
-    # ------------------------------------------------------------------
     return _classify_activity_text(text)
 
 
 def _classify_whisper_text(text: str) -> Tuple[str, float]:
-    """Classify Whisper ASR transcription text."""
-    # Check for explicit tool mentions
     for tool in TOOL_KEYWORDS:
         if tool in text:
             return "tool-contact", 0.85
     
-    # Check for tool action patterns
     for pattern in TOOL_ACTION_PATTERNS:
         if re.search(pattern, text, re.IGNORECASE):
             return "tool-contact", 0.80
     
-    # Sounds of tool use (onomatopoeia, metallic sounds)
     tool_sounds = [
         r"\bclank\b", r"\bclang\b", r"\bbuzz\b", r"\bwhir\b",
         r"\bdrill\b", r"\bgrind\b", r"\bclick\b", r"\bsnap\b",
@@ -245,7 +199,6 @@ def _classify_whisper_text(text: str) -> Tuple[str, float]:
         if re.search(pattern, text, re.IGNORECASE):
             return "tool-contact", 0.70
     
-    # Check for activity descriptions embedded in speech
     activity_phrases = [
         r"tighten", r"loosen", r"screw", r"unscrew",
         r"bolt", r"nut", r"adjust", r"torque",
@@ -255,64 +208,44 @@ def _classify_whisper_text(text: str) -> Tuple[str, float]:
         if re.search(pattern, text, re.IGNORECASE):
             return "tool-contact", 0.65
     
-    # Mostly conversational / not activity → noncontact
     for kw in CONVERSATIONAL_KEYWORDS:
         if kw in text:
             return "tool-noncontact", 0.70
     
-    # Default for whisper: ambiguous
     return "tool-noncontact", 0.40
 
 
 def _classify_activity_text(text: str) -> Tuple[str, float]:
-    """Classify activity-description text (SoftLabels_Rich format)."""
     
-    # ---- Definite tool-contact ----
-    # Explicit tool keyword in text
     for tool in TOOL_KEYWORDS:
         if tool in text:
             return "tool-contact", 0.95
     
-    # "using a <something>" that is NOT bare hand
     if re.search(r"using a (?!bare\s*hand)", text, re.IGNORECASE):
         return "tool-contact", 0.90
     
-    # "screwing or unscrewing" with a tool mentioned nearby
     if re.search(r"screwing|unscrewing", text, re.IGNORECASE):
-        # If also mentions bare hand and no other tool → ambiguous
         if "bare hand" in text:
-            # Check if there's ALSO a tool keyword
             for tool in TOOL_KEYWORDS:
                 if tool in text:
                     return "tool-contact", 0.90
-            # Screwing with bare hand only → could be hand-tightened
             return "tool-contact", 0.60
         return "tool-contact", 0.85
     
-    # Pumping
     if "pumping" in text:
         return "tool-contact", 0.90
     
-    # ---- Definite tool-noncontact ----
-    # Pure locomotion / posture
     for pattern in NONCONTACT_PATTERNS:
         if re.search(pattern, text, re.IGNORECASE):
-            # But check there's no hidden tool reference
             has_tool = any(t in text for t in TOOL_KEYWORDS)
             if not has_tool:
                 return "tool-noncontact", 0.90
     
-    # Bare hand only (no tool keyword)
     if "bare hand" in text and not any(t in text for t in TOOL_KEYWORDS):
         return "tool-noncontact", 0.80
     
-    # ---- Default / ambiguous ----
     return "tool-noncontact", 0.50
 
-
-# =============================================================================
-# LLM-Based Classifier
-# =============================================================================
 
 SYSTEM_PROMPT = """You are an annotation assistant for a multimodal activity dataset.
 
@@ -342,21 +275,6 @@ def classify_with_llm(
     batch_size: int = 20,
     max_retries: int = 3,
 ) -> List[Annotation]:
-    """
-    Classify annotations using an OpenAI-compatible LLM API.
-    Processes in batches for efficiency.
-    
-    Args:
-        annotations: List of annotations to classify
-        api_key: API key for authentication
-        api_base: Base URL for API (supports OpenAI, local endpoints)
-        model: Model name to use
-        batch_size: Number of annotations per API call
-        max_retries: Retry count on failure
-    
-    Returns:
-        Updated annotations with hard_label and confidence set
-    """
     try:
         import requests
     except ImportError:
@@ -375,7 +293,6 @@ def classify_with_llm(
         batch_end = min(batch_start + batch_size, total)
         batch = annotations[batch_start:batch_end]
         
-        # Build batch prompt
         items = []
         for i, ann in enumerate(batch):
             items.append(f"{i+1}. [{ann.start_time:.2f}s - {ann.end_time:.2f}s] \"{ann.text}\"")
@@ -404,15 +321,12 @@ def classify_with_llm(
                 
                 content = response.json()["choices"][0]["message"]["content"]
                 
-                # Parse response – extract JSON array
                 json_match = re.search(r'\[.*\]', content, re.DOTALL)
                 if json_match:
                     results = json.loads(json_match.group())
                 else:
-                    # Try parsing the whole content
                     results = json.loads(content)
                 
-                # Apply results
                 for result in results:
                     idx = result.get("index", 0) - 1
                     if 0 <= idx < len(batch):
@@ -425,21 +339,19 @@ def classify_with_llm(
                         batch[idx].hard_label = label
                         batch[idx].confidence = conf
                 
-                break  # Success
+                break
                 
             except Exception as e:
                 print(f"  API attempt {attempt+1}/{max_retries} failed: {e}")
                 if attempt < max_retries - 1:
                     time.sleep(2 ** attempt)
                 else:
-                    # Fallback to rule-based for this batch
                     print(f"  Falling back to rule-based for batch {batch_start}-{batch_end}")
                     for ann in batch:
                         label, conf = classify_rule_based(ann)
                         ann.hard_label = label
                         ann.confidence = conf
         
-        # Fill any that didn't get classified
         for ann in batch:
             if not ann.hard_label:
                 label, conf = classify_rule_based(ann)
@@ -452,12 +364,7 @@ def classify_with_llm(
     return annotations
 
 
-# =============================================================================
-# Output
-# =============================================================================
-
 def write_output_csv(annotations: List[Annotation], output_path: str):
-    """Write classified annotations to output CSV."""
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow([
@@ -480,7 +387,6 @@ def write_output_csv(annotations: List[Annotation], output_path: str):
 
 
 def print_summary(annotations: List[Annotation]):
-    """Print classification summary statistics."""
     total = len(annotations)
     tool_contact = sum(1 for a in annotations if a.hard_label == "tool-contact")
     tool_noncontact = sum(1 for a in annotations if a.hard_label == "tool-noncontact")
@@ -507,10 +413,6 @@ def print_summary(annotations: List[Annotation]):
     print(f"  Tool-noncontact duration:{noncontact_duration:.1f}s ({noncontact_duration/60:.1f}min)")
     print("=" * 60)
 
-
-# =============================================================================
-# Main
-# =============================================================================
 
 def main():
     parser = argparse.ArgumentParser(
@@ -572,23 +474,19 @@ Examples:
     
     args = parser.parse_args()
     
-    # Validate input
     if not os.path.isfile(args.input):
         print(f"ERROR: Input file not found: {args.input}")
         sys.exit(1)
     
-    # Load annotations
     print(f"Loading: {args.input}")
     annotations = load_annotations(args.input)
     print(f"Loaded {len(annotations)} annotations")
     
-    # Optionally skip empty
     if args.skip_empty:
         before = len(annotations)
         annotations = [a for a in annotations if a.text.strip()]
         print(f"Skipped {before - len(annotations)} empty annotations")
     
-    # Classify
     if args.use_llm:
         api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -610,11 +508,9 @@ Examples:
             ann.hard_label = label
             ann.confidence = conf
     
-    # Write output
     write_output_csv(annotations, args.output)
     print(f"\nOutput written to: {args.output}")
     
-    # Summary
     print_summary(annotations)
 
 

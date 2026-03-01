@@ -31,7 +31,6 @@ class EgoChestMultiSessionDataset(Dataset):
             T.Normalize(mean=self.vit_processor.image_mean, std=self.vit_processor.image_std)
         ])
 
-        # Caches
         self.sentence_cache = {}
         self.audio_cache = {}
         self.video_cache = {}
@@ -111,7 +110,6 @@ class EgoChestMultiSessionDataset(Dataset):
                     if end_idx <= start_idx:
                         video_embedding = torch.zeros((1, self.vit_model.config.hidden_size))
                     else:
-                        # Sample frames at 8 FPS regardless of segment duration
                         target_fps = 8
                         total_frames = int((end - start) * target_fps)
                         frame_times = np.linspace(start, end, num=total_frames, endpoint=False)
