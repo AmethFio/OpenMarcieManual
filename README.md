@@ -19,6 +19,8 @@ This setting also includes sequential collaborative assembly, where participants
 OpenMarcie includes over 37 hours of egocentric and exocentric, multimodal, and multipositional data, featuring eight distinct data types and more than 200 independent information channels. 
 The dataset is benchmarked across three human activity recognition tasks: activity classification, open vocabulary captioning, and cross-modal alignment. 
 The dataset and associated code of OpenMarcie are publicly available at https://kaggle.com/datasets/4942046dbb2608f5a0c3e76c9bd53c6b9b2784d738da7db37f7739b89c2c7f95. 
+Github.io: 
+https://hymalaidfki.github.io/OpenMarcieCVPR/ 
     </p>
   </div>
 </div>
