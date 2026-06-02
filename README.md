@@ -1,26 +1,48 @@
 
-# OpenMARCIE: Dataset for Multimodal Action Recognition in Industrial Environments
+# Use manual for OpenMARCIE
 
-
-
-<div style="display: flex; align-items: left;"> 
-  <div>
-    <img src="https://github.com/user-attachments/assets/e1ac1a03-abf9-45b7-9bef-e4e0e1bee1e8" width="300" align="right" />
-  </div>
-  <div>
-    <p align="left">
-Smart factories use advanced technologies to optimize production and increase efficiency. 
-To this end, the recognition of worker activity allows for accurate quantification of performance metrics, improving efficiency holistically while contributing to worker safety.
-OpenMarcie is, to the best of our knowledge, the biggest multimodal dataset designed for human action monitoring in manufacturing environments. It includes data from wearables sensing modalities and cameras distributed in the surroundings. 
-The dataset is structured around two experimental settings, involving a total of 36 participants.
-In the first setting, twelve participants perform a bicycle assembly and disassembly task under semi-realistic conditions without a fixed protocol, promoting divergent and goal-oriented problem-solving.
-The second experiment involves twenty-five volunteers (24 valid data) engaged in a 3D printer assembly task, with the 3D printer manufacturer's instructions provided to guide the volunteers in acquiring procedural knowledge.
-This setting also includes sequential collaborative assembly, where participants assess and correct each other's progress, reflecting real-world manufacturing dynamics.
-OpenMarcie includes over 37 hours of egocentric and exocentric, multimodal, and multipositional data, featuring eight distinct data types and more than 200 independent information channels. 
-The dataset is benchmarked across three human activity recognition tasks: activity classification, open vocabulary captioning, and cross-modal alignment. 
-The dataset and associated code of OpenMarcie are publicly available at https://kaggle.com/datasets/4942046dbb2608f5a0c3e76c9bd53c6b9b2784d738da7db37f7739b89c2c7f95. 
-Github.io: 
+## Dataset source:
+https://kaggle.com/datasets/4942046dbb2608f5a0c3e76c9bd53c6b9b2784d738da7db37f7739b89c2c7f95. 
 https://hymalaidfki.github.io/OpenMarcieCVPR/ 
-    </p>
-  </div>
-</div>
+
+## About this dataset
+OpenMARCIE contains industrial operation about 2 tasks: A) Bicycle assembly, B) 3D printer assembly.
+
+## Dataset structure
+### ExoData
+3rd-person camera video, including ExoVideo, ObjectTracking, and VideoPose.
+#### ObjectTracking
+Segmentation mask, object id, position, velocity, etc.
+#### VideoPose
+Not yet clear what it is
+
+### HardLabels
+Categorical labels for the activity.
+#### VideoChestLabelsSec
+Label for 1st-person camera video, including Start_Time, End_Time, Verb, Object, Tool, etc.
+#### VideoExoLabelsSec
+Label for 3rd-person camera video, similar to the previous one
+
+### SoftLabels
+Categorical and narrative labels for the actvity.
+#### EgoChestVideoLabelSec_Numbered
+Label for 1st-person camera video, including Start_Time, End_Time, Label_Numbers (class)
+#### EgoChestVideoLabelSec_SoftLabels_Rich
+Label for 1st-person camera video, including Start_Time, End_Time, Sentence (narration about the scene)
+
+### Wearables
+1st-person videos and sensors
+#### EgoVideo
+1st-person camera video, including depth and RGB
+#### ImuAndBaro
+GlassesLabelled: Kinematic measures: Lax, Lay, Laz, qw, qi, qj, qk;
+LeftWristLabelled: Similar to above
+RightWristLabelled: Similar to above
+#### Sound_PositionChest
+Stereo sound from 1st-person camera.
+Label including Verb, Tool, Object, Remark, etc.
+
+### ThermalAndSpectrometer
+Thermometer matrix and 6-channel spectrometer measures.
+#### ChestLbelled
+#### ShoulderLabelled
