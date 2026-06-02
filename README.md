@@ -2,11 +2,12 @@
 # Use manual for OpenMARCIE
 
 ## 1. Dataset source:
-https://kaggle.com/datasets/4942046dbb2608f5a0c3e76c9bd53c6b9b2784d738da7db37f7739b89c2c7f95. 
+https://kaggle.com/datasets/4942046dbb2608f5a0c3e76c9bd53c6b9b2784d738da7db37f7739b89c2c7f95
+
 https://hymalaidfki.github.io/OpenMarcieCVPR/ 
 
 ## 2. About this dataset
-OpenMARCIE contains industrial operation about 2 tasks: A) Bicycle assembly, B) 3D printer assembly.
+OpenMARCIE contains industrial operation about 2 tasks: A) Bicycle assembly (12 volumes), B) 3D printer assembly (25 volumes).
 
 ## 3. Dataset structure
 ### 3.1 ExoData
@@ -46,3 +47,9 @@ Label including Verb, Tool, Object, Remark, etc.
 Thermometer matrix and 6-channel spectrometer measures.
 #### 3.5.1) ChestLbelled
 #### 3.5.2) ShoulderLabelled
+
+## 4. Sample code provided by OpenMarcie
+In the code folder, OpenMarcie provided data loader and 3 tasks: classification, cross-modal alignment, and narration generation. Check the paper for details.
+
+## 5. Download script
+The sample code named **download_bike.sh** downloads egocentric videos and hard labels from https://projects.dfki.uni-kl.de/open-marcie/ . Since there are multiple volumes for each task, it is better to download the dataset directly to the experiment server. Run the bash file on the server for automatic download.
