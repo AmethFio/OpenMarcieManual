@@ -51,5 +51,13 @@ Thermometer matrix and 6-channel spectrometer measures.
 ## 4. Sample code provided by OpenMarcie
 In the code folder, OpenMarcie provided data loader and 3 tasks: classification, cross-modal alignment, and narration generation. Check the paper for details.
 
-## 5. Download script
-The sample code named **download_bike.sh** downloads egocentric videos and hard labels from https://projects.dfki.uni-kl.de/open-marcie/ . Since there are multiple volumes for each task, it is better to download the dataset directly to the experiment server. Run the bash file on the server for automatic download.
+## 5. Download the dataset
+General way: visit https://projects.dfki.uni-kl.de/open-marcie/ with
+> username: reviewer
+> password: 1234
+and select files to download.
+
+Since there are multiple volumes for each task, you can download by script.
+The sample code named **download_bike.sh** downloads egocentric videos and hard labels of task A from [https://projects.dfki.uni-kl.de/open-marcie/](https://projects.dfki.uni-kl.de/open-marcie/BikeExperiment) . Since the dataset is huge, it is better to download the dataset directly to the experiment server. Run the bash file for automatic download.
+
+**download_all.sh** downloads **everything** about the dataset. If you want specifically part of the dataset, modify **download_bike.sh** to match the filenames you want.
